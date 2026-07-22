@@ -9,3 +9,21 @@ export const validateTask = ( { title = "", dueDate = ""} = {}) => {
 };
 
 export const mergeTaskUpdate = (original, ...updates) => updates.reduce((tasks, update) => ({ ...tasks, ...update }), { ...original });
+
+class TaskValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "TaskValidationError";
+  }
+}
+
+export function createTask(task) {
+  if (!validateTask(task)) {
+    throw new TaskValidationError("Invalid task data");
+  }
+  return {
+    id: Date.now(),
+    completed: false,
+    ...task,
+  };
+}
