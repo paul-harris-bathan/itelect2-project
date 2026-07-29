@@ -10,7 +10,7 @@ export const validateTask = ( { title = "", dueDate = ""} = {}) => {
 
 export const mergeTaskUpdate = (original, ...updates) => updates.reduce((tasks, update) => ({ ...tasks, ...update }), { ...original });
 
-class TaskValidationError extends Error {
+export class TaskValidationError extends Error {
   constructor(message) {
     super(message);
     this.name = "TaskValidationError";

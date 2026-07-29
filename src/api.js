@@ -13,7 +13,7 @@ export async function fetchSampleUsers() {
     }
 }
 
-export async function fetchSampleUsersPromise() {
+export function fetchSampleUsersPromise() {
   return fetch("https://jsonplaceholder.typicode.com/users")
     .then((res) => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -21,7 +21,7 @@ export async function fetchSampleUsersPromise() {
     })
     .then((sampleUsers) => sampleUsers.map(({ id, name, email }) => ({ id, name, email })))
     .catch((err) => {
-      console.error("Errpr:", err.message);
+      console.error("Error:", err.message);
       return [];
     });
 }
