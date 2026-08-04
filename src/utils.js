@@ -27,3 +27,8 @@ export function createTask(task) {
     ...task,
   };
 }
+
+export const mockTasks = [
+  { id: 1, title: "Finished ITELECT2", completed: true, dueDate: "2026-08-04" },
+  { id: 2, title: "Find RRLS na mahirap hirap gawin", completed: false, dueDate: "2026-08-05" },
+];
