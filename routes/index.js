@@ -1,5 +1,7 @@
 import express from "express";
-import { mergeTaskUpdate, mockTasks, validateTask } from "../src/utils.js";
+import db from "../models/index.cjs";
+const { Task, User } = db;
+
 const router = express.Router();
 
 //GET returns a default message without anything following the /
@@ -8,13 +10,14 @@ res.json({ message: "Hello from the router!" });
 });
 
 //GET returns the list of /tasks 
-router.get("/tasks", (req, res) => {
-  res.json(mockTasks);
+router.get("/tasks", async (req, res) => {
+  const tasks = await Task.findAll({  include: User  });
+  res.json(tasks);
 });
-
+ 
 //GET returns a /tasks with an a specific id
-router.get("/tasks/:id", (req, res) => {
-  const task = mockTasks.find((t) => t.id === Number(req.params.id)); //Number parses the the req.params.id into a number
+router.get("/tasks/:id", async (req, res) => {
+  const task = await Task.findByPk(req.params.id, {  include: User  });
   if (!task) {
     return res.status(404).json({ error: `Sorry po but no task found with id: ${req.params.id}` });
   }
@@ -22,49 +25,35 @@ router.get("/tasks/:id", (req, res) => {
 });
 
  //GET returns users which has id, name, and email
-router.get("/users", (req, res) => {
-  res.json(req.app.locals.users);
+router.get("/users", async (req, res) => {
+  const users = await User.findAll({  include: Task, order: [["id", "ASC"]]  });
+  res.json(users);
 });
 
 //POST create a new task
-router.post("/tasks", (req, res, next) => {
-  if (!validateTask(req.body)) {
-    const err = new Error("title and duedate required");
-    err.status = 400;
-    return next(err); // the error middleware answers
-  }
-
-  const task = {id: mockTasks.length ? Math.max(...mockTasks.map((t) => t.id)) + 1 : 1, ...req.body, completed: false};
-  mockTasks.push(task);
+router.post("/tasks", async (req, res) => {
+  const task = await Task.create(req.body);
   res.status(201).json(task);
 });
 
 //PUT adds to the existing body
-router.put("/tasks/:id", (req, res, next) => {
-  const task = mockTasks.find((t) => t.id === Number(req.params.id));
+router.put("/tasks/:id", async (req, res) => {
+  const task = await Task.findByPk(req.params.id);
   if (!task) {
-    const err = new Error("Task not found");
-    err.status = 404;
-    return next(err); // the error middleware answers
+    return res.status(404).json({  error: "Task not found"  });
   }
-
-  mockTasks[task.id - 1] = mergeTaskUpdate(mockTasks[task.id - 1], req.body);
-  res.status(200).json(mockTasks[task.id - 1]);
+  await task.update(req.body);
+  res.json(task);
 });
 
 //DELETE deletes an existing task
-router.delete("/tasks/:id", (req, res, next) => {
-  const task = mockTasks.find((t) => t.id === Number(req.params.id));
+router.delete("/tasks/:id", async (req, res) => {
+  const task = await Task.findByPk(req.params.id);
   if (!task) {
-    const err = new Error("Task not found");
-    err.status = 404;
-    return next(err); // the error middleware answers
+    return res.status(404).json({  error: "Task not found"  });
   }
-  const [removed] = mockTasks.splice(task.id - 1, 1);
-  res.status(200).json({ message: "Deleted", task: removed });
+  await task.destroy();
+  res.json({ message: "Deleted", task})
 });
 
-
-
 export default router;
-

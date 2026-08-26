@@ -17,9 +17,12 @@ app.use(express.json());
 app.use("/api", router);
 
 app.use((err, req, res, next) => {
-console.error(err.message);
-const status = err.status || 500;
-res.status(status).json({ error: err.message });
+  if (err.name === "SequelizeValidationError") {
+    return res.status(400).json({ error: err.errors.map((e) => e.message) });
+  }
+  console.error(err.message);
+  const status = err.status || 500;
+  res.status(status).json({ error: err.message });
 });
 
 

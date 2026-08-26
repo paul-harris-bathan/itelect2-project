@@ -10,15 +10,27 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      User.hasMany(models.Task, { foreignKey: 'userId' })
       // define association here
     }
   }
   User.init({
-    name: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: { notEmpty: { msg: 'name is required' } }
+    },
     email: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'User',
+    hooks: {
+      beforeValidate: (user) => {
+        if (user.name) user.name = user.name.trim();
+      }
+    }
+
+
   });
   return User;
 };
