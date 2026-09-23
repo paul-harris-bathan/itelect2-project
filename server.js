@@ -24,6 +24,15 @@ if (!process.env.JWT_SECRET) {
 
 }
 
+const secret = process.env.JWT_SECRET;
+
+if (!secret || secret.length < 32) {
+
+  console.error("JWT_SECRET in .env must be at least 32 characters.");
+
+  process.exit(1);
+
+}
 
 app.use(cors());
 app.use(morgan("dev"));
@@ -42,13 +51,20 @@ app.use((err, req, res, next) => {
     return res.status(409).json({ error: "That email is already registered" });
 
   }
+
+  if (err.status && err.status < 500) {
+
+    return res.status(err.status).json({ error: err.message });
+
+  }
+
   console.error(err.message);
-  const status = err.status || 500;
-  res.status(status).json({ error: err.message });
+  res.status(500).json({ error: "Something went wrong on the server" });
+
 });
-
-
  
 app.listen(PORT, () => {
+
   console.log(`Server running on port ${PORT}`);
+
 });

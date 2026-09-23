@@ -1,8 +1,23 @@
 import express from "express";
+
 import db from "../models/index.cjs";
-const { Task, User } = db;
+
+import verifyToken from "../middleware/verifyToken.js";
+
+import requireRole from "../middleware/requireRole.js";
+
+const { Task, User, Sequelize } = db;
+const { Op } = Sequelize;
+
 
 const router = express.Router();
+
+const TASK_FIELDS = [
+
+  "title", "dueDate", "completed", "userId",
+
+];
+
 
 //GET returns a default message without anything following the /
 router.get("/", (req, res) => {
@@ -11,8 +26,28 @@ res.json({ message: "Hello from the router!" });
 
 //GET returns the list of /tasks 
 router.get("/tasks", async (req, res) => {
-  const tasks = await Task.findAll({  include: User  });
+  const { search } = req.query;
+
+  const where = {};
+
+  if (search) {
+
+    where.title = { [Op.iLike]: `%${search}%` };
+
+  }
+
+  const tasks = await Task.findAll({  
+
+    where,
+    
+    include: User,
+
+    order: [["id", "ASC"]]  
+  
+  });
+
   res.json(tasks);
+
 });
  
 //GET returns a /tasks with an a specific id
@@ -31,23 +66,23 @@ router.get("/users", async (req, res) => {
 });
 
 //POST create a new task
-router.post("/tasks", async (req, res) => {
-  const task = await Task.create(req.body);
+router.post("/tasks", verifyToken, async (req, res) => {
+  const task = await Task.create(req.body, { fields: TASK_FIELDS });
   res.status(201).json(task);
 });
 
 //PUT adds to the existing body
-router.put("/tasks/:id", async (req, res) => {
+router.put("/tasks/:id", verifyToken, async (req, res) => {
   const task = await Task.findByPk(req.params.id);
   if (!task) {
     return res.status(404).json({  error: "Task not found"  });
   }
-  await task.update(req.body);
+  await task.update(req.body, { fields: TASK_FIELDS });
   res.json(task);
 });
 
 //DELETE deletes an existing task
-router.delete("/tasks/:id", async (req, res) => {
+router.delete("/tasks/:id", verifyToken, requireRole("admin"), async (req, res) => {
   const task = await Task.findByPk(req.params.id);
   if (!task) {
     return res.status(404).json({  error: "Task not found"  });

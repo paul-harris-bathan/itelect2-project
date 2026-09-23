@@ -81,6 +81,13 @@ router.post("/login", async (req, res) => {
 
   res.json({ token });
 
+  router.get("/me", verifyToken, (req, res) => {
+
+  res.json({ user: req.user });
+
+  });
+
+
 });
 
 
