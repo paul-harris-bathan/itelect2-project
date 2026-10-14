@@ -24,7 +24,7 @@ const router = express.Router();
 
  
 
-// server.js mounts this router at /api/books, so "/" is /api/books
+
 
 router.get("/", listTasks);
 

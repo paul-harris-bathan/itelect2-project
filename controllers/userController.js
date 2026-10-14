@@ -2,7 +2,7 @@ import db from "../models/index.cjs";
 
  
 
-const { Author, Task } = db;
+const { User, Task } = db;
 
  
 
@@ -10,7 +10,7 @@ const { Author, Task } = db;
 
 export async function listUsers(req, res) {
 
-  const users = await Author.findAll({
+  const users = await User.findAll({
 
     include: Task,
 
