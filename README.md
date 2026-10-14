@@ -43,3 +43,10 @@ PUT Request <br>
 DELETE Request <br>
 ![alt text](image-16.png)
 ![alt text](image-17.png)
+
+
+## SAMPLE FROM POSTMAN AND URL LINK GET AFTER RENDER DEPLOYMENT
+POSTMAN <br>
+![alt text](image-21.png)
+URL LINK <br>
+![alt text](image-22.png)
