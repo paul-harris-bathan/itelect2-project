@@ -1,6 +1,9 @@
 # itelect2-project
 My IT Elective 2 backend web development project.
 
+## LIVE URL
+https://itelect2-demo-library-33jq.onrender.com/ <br>
+
 ## API TESTING
 GET Request <br>
 ![alt text](image.png)
